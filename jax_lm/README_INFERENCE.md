@@ -1,6 +1,6 @@
 # JAX DiffuCoder Inference
 
-This package provides a production-ready JAX/Flax implementation of DiffuCoder inference, optimized for TPU deployment.
+Production-ready JAX/Flax implementation of DiffuCoder inference, optimized for TPU deployment with comprehensive testing and benchmarking.
 
 ## ✅ Completed Features
 
@@ -23,35 +23,47 @@ This package provides a production-ready JAX/Flax implementation of DiffuCoder i
 
 ## 🚀 Quick Start
 
-### Local Inference
+### 1. Verify Installation
+```bash
+# Run smoke tests (no weights needed)
+python jax_lm/tests/smoke_tests.py
+
+# Expected: 10/12 tests pass (2 known issues on some platforms)
+```
+
+### 2. Local Inference
 ```bash
 # Ensure weights are in place
-# models/dream-jax/config.json
-# models/dream-jax/params.pkl
+# models/dream-jax/config.json (1KB)
+# models/dream-jax/params.pkl (14.2GB)
 
 # Run inference
 python -m jax_lm.inference \
     --model-path ./models/dream-jax \
     --prompt "def fibonacci(n):" \
     --max-new-tokens 256
+
+# Run quick test
+python jax_lm/tests/quick_inference_test.py
 ```
 
-### Google Colab TPU
+### 3. Google Colab TPU
 ```python
 # In Colab with TPU runtime
 !pip install jax[tpu] transformers flax
 
-# Mount drive if model is there
-from google.colab import drive
-drive.mount('/content/drive')
+# Clone repository
+!git clone https://github.com/yourusername/ml-diffucoder.git
+%cd ml-diffucoder
 
-# Run inference
-!python jax_lm/inference.py --model-path /path/to/model
+# Run TPU example
+!python examples/tpu_inference_simple.py
 ```
 
-### Python API
+### 4. Python API
 ```python
 from jax_lm.inference import DiffuCoderInference
+import jax.numpy as jnp
 
 # Initialize
 model = DiffuCoderInference(
@@ -137,9 +149,10 @@ jax_lm/
 
 ## 🚧 Known Limitations
 
-1. **CPU Performance**: Slow on CPU (~0.003 tokens/sec for 7.6B model)
-2. **Metal Backend**: Incompatible with current jax-metal version
-3. **Training Code**: Removed from inference package (use separate training repo)
+1. **CPU Performance**: Not recommended for production (~0.005 tokens/sec)
+2. **Metal Backend**: Experimental support with memory space errors
+3. **Memory Requirements**: 16GB+ for inference, 32GB+ recommended
+4. **Training Code**: Inference-only package (training in separate module)
 
 ## 🎯 Next Steps for Production
 

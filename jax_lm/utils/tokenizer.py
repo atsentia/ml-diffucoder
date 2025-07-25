@@ -116,3 +116,34 @@ def decode_sequences(
             skip_special_tokens=skip_special_tokens,
             clean_up_tokenization_spaces=clean_up_tokenization_spaces,
         )
+
+
+def get_special_tokens(tokenizer: AutoTokenizer) -> dict:
+    """Get special token IDs from tokenizer.
+    
+    Args:
+        tokenizer: Tokenizer instance
+        
+    Returns:
+        Dictionary of special token names to IDs
+    """
+    special_tokens = {}
+    
+    # Standard special tokens
+    if hasattr(tokenizer, "bos_token_id") and tokenizer.bos_token_id is not None:
+        special_tokens["bos_token_id"] = tokenizer.bos_token_id
+    
+    if hasattr(tokenizer, "eos_token_id") and tokenizer.eos_token_id is not None:
+        special_tokens["eos_token_id"] = tokenizer.eos_token_id
+    
+    if hasattr(tokenizer, "pad_token_id") and tokenizer.pad_token_id is not None:
+        special_tokens["pad_token_id"] = tokenizer.pad_token_id
+    
+    if hasattr(tokenizer, "unk_token_id") and tokenizer.unk_token_id is not None:
+        special_tokens["unk_token_id"] = tokenizer.unk_token_id
+    
+    # DiffuCoder specific - mask token
+    if hasattr(tokenizer, "mask_token_id") and tokenizer.mask_token_id is not None:
+        special_tokens["mask_token_id"] = tokenizer.mask_token_id
+    
+    return special_tokens

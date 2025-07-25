@@ -10,7 +10,8 @@ from flax import linen as nn
 from flax.core import freeze, unfreeze
 import orbax.checkpoint as ocp
 
-from jax_lm.models.diffucoder import DiffuCoder, DiffuCoderConfig
+from jax_lm.models.dream import DreamForCausalLM as DiffuCoder
+from jax_lm.models.dream import DreamConfig as DiffuCoderConfig
 
 
 def load_config(config_path: Path) -> DiffuCoderConfig:
@@ -74,7 +75,21 @@ def load_model(
     if model_path.exists():
         # Local path
         config_path = model_path / "config.json"
-        checkpoint_path = model_path / "checkpoint"
+        params_path = model_path / "params.pkl"
+        
+        # Check for pickle format first (converted weights)
+        if not params_path.exists():
+            # Try checkpoint format
+            checkpoint_path = model_path / "checkpoint"
+            if checkpoint_path.exists():
+                params_path = checkpoint_path
+                use_pickle = False
+            else:
+                raise FileNotFoundError(
+                    f"No params.pkl or checkpoint found in {model_path}"
+                )
+        else:
+            use_pickle = True
     else:
         # Assume HuggingFace model ID
         # In production, this would download from HF
@@ -90,9 +105,16 @@ def load_model(
     rng = jax.random.PRNGKey(0)
     model, _ = initialize_model(config, rng, dtype)
     
-    # Load checkpoint
-    ckptr = ocp.PyTreeCheckpointer()
-    params = ckptr.restore(checkpoint_path)
+    # Load parameters
+    if use_pickle:
+        # Load from pickle format (converted weights)
+        import pickle
+        with open(params_path, "rb") as f:
+            params = pickle.load(f)
+    else:
+        # Load from orbax checkpoint
+        ckptr = ocp.PyTreeCheckpointer()
+        params = ckptr.restore(params_path)
     
     # Convert to specified dtype if needed
     if dtype != jnp.float32:

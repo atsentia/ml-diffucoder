@@ -1,6 +1,6 @@
 # JAX/Flax DiffuCoder
 
-A high-performance JAX/Flax implementation of DiffuCoder, optimized for TPU/GPU acceleration with full tokenizer support.
+A JAX/Flax implementation of DiffuCoder, optimized for TPU/GPU acceleration with full tokenizer support.
 
 ## 🚀 Quick Start
 

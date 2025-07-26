@@ -1,6 +1,6 @@
 # JAX/Flax DiffuCoder
 
-A high-performance JAX/Flax implementation of DiffuCoder, optimized for TPU/GPU/CPU acceleration. This implementation provides significant performance improvements over PyTorch, especially on TPUs.
+A high-performance JAX/Flax implementation of DiffuCoder, optimized for TPU/GPU/CPU acceleration. This implementation leverages JAX's XLA compilation and hardware-specific optimizations.
 
 > **📚 Documentation**
 > - [Full Setup & Usage Guide](README_UPDATED.md) - Complete installation and usage examples
@@ -11,7 +11,7 @@ A high-performance JAX/Flax implementation of DiffuCoder, optimized for TPU/GPU/
 ## 🚀 Highlights
 
 - **Multi-Hardware Support**: Automatic detection and optimization for TPU, GPU, and CPU
-- **Performance**: ~25% faster on CPU, 2-5x speedup on TPU compared to PyTorch
+- **Performance**: Optimized for JAX's strengths including XLA compilation and TPU acceleration
 - **Complete Implementation**: Full DiffuCoder architecture with RoPE, multi-head attention, and RMSNorm
 - **Easy Conversion**: Tools to convert existing PyTorch checkpoints to JAX format
 - **Production Ready**: Comprehensive testing and benchmarking suite
@@ -132,12 +132,12 @@ For detailed architecture information, see [ARCHITECTURE.md](docs/ARCHITECTURE.m
 
 ### Benchmark Results
 
-Performance benchmarks show JAX consistently outperforms PyTorch:
-- **CPU**: ~25% faster due to XLA optimization
-- **GPU**: Expected 1.5-2x speedup with proper tuning
-- **TPU**: Designed for 2-5x speedup with native XLA support
+Performance characteristics:
+- **CPU**: Benefits from XLA optimization and JIT compilation
+- **GPU**: Efficient memory usage and kernel fusion
+- **TPU**: Native XLA support and optimized for TPU architecture
 
-*Note: Actual performance depends on model size, batch size, and hardware configuration. Run the benchmark suite on your hardware for precise measurements.*
+*Note: Performance depends on many factors including model size, batch size, sequence length, hardware configuration, and specific use case. JAX and PyTorch each have their strengths - we recommend benchmarking on your specific hardware and workload.*
 
 ### Running Benchmarks
 

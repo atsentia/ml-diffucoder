@@ -18,8 +18,9 @@ import orbax.checkpoint as ocp
 from orbax.checkpoint import type_handlers
 import tensorstore as ts
 
-from jax_lm.models.diffucoder import DiffuCoder, DiffuCoderConfig
-from jax_lm.utils.model_utils import load_config, initialize_model
+# Import these at runtime to avoid circular imports
+DiffuCoder = None
+DiffuCoderConfig = None
 
 
 # Constants
@@ -121,7 +122,7 @@ class ShardedCheckpointer:
         self,
         params: Dict[str, Any],
         save_path: Path,
-        config: Optional[DiffuCoderConfig] = None
+        config: Optional[Any] = None  # DiffuCoderConfig
     ) -> Dict[str, Any]:
         """Save parameters with sharding using Orbax.
         
@@ -273,7 +274,7 @@ class ShardedCheckpointer:
 
 
 def save_for_huggingface(
-    model: DiffuCoder,
+    model: Any,  # DiffuCoder instance
     params: Dict[str, Any],
     save_path: Path,
     tokenizer_path: Optional[Path] = None,
@@ -354,7 +355,7 @@ def load_from_huggingface(
     cache_dir: Optional[Path] = None,
     token: Optional[str] = None,
     dtype: Any = jnp.float32
-) -> Tuple[DiffuCoder, Dict[str, Any]]:
+) -> Tuple[Any, Dict[str, Any]]:
     """Load model from HuggingFace Hub using Orbax format.
     
     Args:
@@ -378,6 +379,10 @@ def load_from_huggingface(
     )
     
     local_path = Path(local_dir)
+    
+    # Import at runtime to avoid circular dependency
+    from ..models.diffucoder import DiffuCoder
+    from ..utils.model_utils import load_config
     
     # Load config
     config = load_config(local_path / "config.json")

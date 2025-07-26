@@ -1,5 +1,4 @@
 """DiffuCoder model implementations in Flax."""
 
-from jax_lm.models.diffucoder import DiffuCoder, DiffuCoderConfig
-
-__all__ = ["DiffuCoder", "DiffuCoderConfig"]
+# Avoid circular imports
+__all__ = ["DiffuCoder", "DiffuCoderConfig", "diffusion_generate", "batch_diffusion_generate"]

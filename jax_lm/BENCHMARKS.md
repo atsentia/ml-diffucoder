@@ -8,13 +8,13 @@ Comprehensive performance analysis of DiffuCoder JAX implementation across diffe
 
 | Hardware | Time per Token | Tokens/Second | Notes |
 |----------|---------------|---------------|-------|
-| **TPU v2** | 16-18ms | 55-62 | Best performance |
-| **TPU v6 lite** | 18-19ms | 52-55 | Google Colab TPU |
-| **A100 80GB** | 25-30ms | 33-40 | Enterprise GPU |
-| **A100 40GB** | 30-35ms | 28-33 | Cloud GPU |
-| **RTX 4090** | 40-45ms | 22-25 | Consumer flagship |
-| **RTX 3090** | 50-60ms | 16-20 | Previous gen |
-| **CPU (32-core)** | 400-500ms | 2-2.5 | Baseline |
+| **TPU v2** | TBD | TBD | To be benchmarked |
+| **TPU v6 lite** | TBD | TBD | Google Colab TPU |
+| **A100 80GB** | TBD | TBD | To be benchmarked |
+| **A100 40GB** | TBD | TBD | To be benchmarked |
+| **RTX 4090** | TBD | TBD | To be benchmarked |
+| **RTX 3090** | TBD | TBD | To be benchmarked |
+| **CPU (32-core)** | TBD | TBD | To be benchmarked |
 
 ## 🧪 Detailed Benchmark Results
 
@@ -243,15 +243,17 @@ def profile_generation():
     # tensorboard --logdir=./profile_output
 ```
 
-## 📊 Comparison with PyTorch
+## 📊 Framework Comparison
 
-| Metric | PyTorch | JAX | Improvement |
-|--------|---------|-----|-------------|
-| TPU Support | Limited | Native | ✅ |
-| Compilation | None | JIT | ✅ |
-| Inference (TPU) | 35-40ms | 16-18ms | 2.2x |
-| Inference (GPU) | 45-50ms | 30-35ms | 1.4x |
-| Memory Usage | 32GB | 28GB | 12% less |
+| Metric | PyTorch | JAX | Notes |
+|--------|---------|-----|-------|
+| TPU Support | Limited | Native | JAX has first-class TPU support |
+| Compilation | Eager | JIT | JAX uses XLA compilation |
+| Inference (TPU) | TBD | TBD | To be benchmarked |
+| Inference (GPU) | TBD | TBD | To be benchmarked |
+| Memory Usage | TBD | TBD | To be measured |
+
+*Performance comparison will be updated with real benchmark results from identical hardware and configurations.*
 
 ## 🔍 Bottleneck Analysis
 
@@ -273,14 +275,14 @@ def profile_generation():
 
 1. **Quantization** (8-bit, 4-bit)
    - Expected 2-4x memory reduction
-   - 1.5-2x speed improvement
+   - Potential performance improvements
 
 2. **Flash Attention**
-   - 20-30% speed improvement
+   - Potential memory and speed benefits
    - Better memory efficiency
 
 3. **Speculative Decoding**
-   - 2-3x generation speedup
+   - Potential generation speedup
    - Requires draft model
 
 ## 📚 References

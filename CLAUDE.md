@@ -149,3 +149,68 @@ huggingface-cli download apple/DiffuCoder-7B-Instruct \
 - E2B sandbox is used for code execution rewards - requires E2B_API_KEY
 - Uses specialized transformers and TRL versions pinned in setup.py for DeepSpeed x vLLM compatibility
 - Supports multiple distributed training backends via accelerate configs
+
+## Current Status (July 26, 2025)
+
+### ✅ Completed Tasks:
+1. **Performance Claims Updated**: Removed all specific PyTorch vs JAX performance claims from documentation
+   - Updated: README.md, README_PYPI.md, BENCHMARKS.md, upload script model card
+   - Now states: "Performance varies based on hardware, batch size, and workload"
+
+2. **Model Conversion**: Successfully converted JAX model to sharded Orbax format
+   - Original model: `/models/DiffuCoder-7B-JAX-original/params.pkl` (single pickle file)
+   - Sharded model: `/models/DiffuCoder-7B-JAX/` (11.85 GB with Orbax checkpoint)
+   - Used script: `convert_jax_to_sharded.py`
+
+3. **Directory Structure**: Renamed to match HuggingFace convention
+   - `dream-jax` → `DiffuCoder-7B-JAX-original`
+   - `dream-jax-sharded` → `DiffuCoder-7B-JAX`
+
+4. **Model Structure Verified**: 
+   - JAX params are in FrozenDict format
+   - Structure: `params['params']['DreamModel_0']` contains model weights
+   - Total parameters: 7,615,487,488
+
+### 🚧 In Progress:
+
+1. **HuggingFace Upload**: Need manual upload due to token permissions
+   - Model ready at: `/Users/amund/ml-diffucoder/models/DiffuCoder-7B-JAX`
+   - Target repo: `atsentia/DiffuCoder-7B-JAX`
+   - Upload script: `upload_to_huggingface.py -y`
+   - Error: 403 Forbidden (token permissions issue)
+
+2. **Import Issues**: Circular imports in jax_lm package
+   - Main issue between `jax_lm.__init__.py` and model imports
+   - Implemented lazy loading with `__getattr__` but needs testing
+
+### 📋 TODO:
+
+1. **Manual HuggingFace Upload**: Upload model files via web interface
+2. **Fix Package Imports**: Resolve circular dependencies properly
+3. **PyTorch/JAX Numerical Comparison**: Create proper parity test
+4. **PyPI Publication**: After imports are fixed and tested
+5. **Colab Testing**: 
+   - Test on TPU v2/v3 and GPU (A100)
+   - Fill in benchmark tables with real numbers
+   - Update documentation with actual performance data
+
+### 🔧 Key Scripts Created:
+
+- `convert_jax_to_sharded.py` - Converts pickle to sharded Orbax format with rich progress
+- `test_sharded_format.py` - Comprehensive format verification
+- `verify_sharded_files.py` - Quick structure check
+- `test_local_install.py` - Package installation test
+- `test_pytorch_jax_parity.py` - Model comparison (needs work)
+- `test_local_model_cpu.py` - CPU inference test
+- `upload_to_huggingface.py` - HF upload with progress
+
+### 📝 Important Notes:
+
+- Force CPU mode: `os.environ["JAX_PLATFORM_NAME"] = "cpu"`
+- Disable rich logging: `NO_RICH_LOGGING=1`
+- HF token location: `/jax_lm/.env`
+- Model files total: 11.85 GB (27 files including tokenizer)
+
+### 🔐 Security Note:
+- Never commit the .env file with HF token
+- Token needs write permissions for model upload

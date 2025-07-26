@@ -41,12 +41,12 @@ base_model: apple/DiffuCoder-7B-Instruct
 
 # DiffuCoder-7B-JAX
 
-A high-performance JAX/Flax implementation of [apple/DiffuCoder-7B-Instruct](https://huggingface.co/apple/DiffuCoder-7B-Instruct), optimized for TPUs and GPUs.
+A JAX/Flax implementation of [apple/DiffuCoder-7B-Instruct](https://huggingface.co/apple/DiffuCoder-7B-Instruct), optimized for TPUs and GPUs.
 
 ## 🚀 Key Features
 
 - **Native JAX/Flax implementation** with full TPU optimization
-- **2-5x faster inference on TPUs** compared to PyTorch
+- **Optimized for JAX ecosystem** with XLA compilation
 - **Sharded checkpoint format** for efficient loading
 - **7.6B parameters** with masked diffusion architecture
 - **131K context length** support
@@ -138,13 +138,15 @@ outputs = batch_diffusion_generate(
 
 ## 📊 Performance Benchmarks
 
-| Hardware | Tokens/Second | Memory Usage | Speedup vs PyTorch |
-|----------|--------------|--------------|-------------------|
-| TPU v3-8 | 65-70 | 16GB | 2.5x |
-| TPU v4-8 | 75-80 | 16GB | 3x |
-| A100 80GB | 40-45 | 28GB | 1.5x |
-| V100 32GB | 25-30 | 28GB | 1.2x |
-| RTX 4090 | 20-25 | 24GB | 1.1x |
+| Hardware | Tokens/Second | Memory Usage | Notes |
+|----------|--------------|--------------|-------|
+| TPU v3-8 | TBD | TBD | To be benchmarked |
+| TPU v4-8 | TBD | TBD | To be benchmarked |
+| A100 80GB | TBD | TBD | To be benchmarked |
+| V100 32GB | TBD | TBD | To be benchmarked |
+| RTX 4090 | TBD | TBD | To be benchmarked |
+
+*Performance varies based on batch size, sequence length, and specific workload.*
 
 ## 🏗️ Model Architecture
 

@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-High-performance JAX/Flax implementation of DiffuCoder, a 7.6B parameter diffusion-based code generation model. Optimized for TPUs and GPUs with 2-5x faster inference than PyTorch.
+High-performance JAX/Flax implementation of DiffuCoder, a 7.6B parameter diffusion-based code generation model. Optimized for TPUs and GPUs with JAX's native XLA compilation.
 
 ## 🚀 Quick Start
 
@@ -48,7 +48,7 @@ print(output)
 
 ## 🎯 Key Features
 
-- **Native JAX/Flax**: Built from scratch for maximum performance
+- **Native JAX/Flax**: Built from scratch for JAX ecosystem
 - **TPU Optimized**: First-class support for Google Cloud TPUs
 - **Memory Efficient**: Sharded checkpoints and dtype flexibility
 - **No HF Dependencies**: Pure JAX implementation (HuggingFace only for storage)
@@ -56,11 +56,15 @@ print(output)
 
 ## 📊 Performance
 
-| Hardware | Tokens/sec | Speedup vs PyTorch |
-|----------|------------|-------------------|
-| TPU v3-8 | 65-70 | 2.5x |
-| A100 80GB | 40-45 | 1.5x |
-| RTX 4090 | 20-25 | 1.2x |
+| Hardware | Tokens/sec | Notes |
+|----------|------------|-------|
+| TPU v3-8 | TBD | To be benchmarked |
+| TPU v4-8 | TBD | To be benchmarked |
+| A100 80GB | TBD | To be benchmarked |
+| V100 32GB | TBD | To be benchmarked |
+| RTX 4090 | TBD | To be benchmarked |
+
+*Performance varies based on batch size, sequence length, and specific workload. We'll update with real benchmark results.*
 
 ## 🔧 Advanced Usage
 

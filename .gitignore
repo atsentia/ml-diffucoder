@@ -26,3 +26,37 @@ env/
 
 # Data
 *.jsonl
+
+# Large model files
+models/
+*.pkl
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.zarr
+orbax_checkpoint/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Benchmark results
+benchmark_results/
+*_results.json
+
+# Test outputs
+test_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

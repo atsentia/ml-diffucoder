@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="jax_lm",
+    name="jax-diffucoder",
     version="0.1.0",
     author="JAX DiffuCoder Contributors",
     description="JAX/Flax implementation of DiffuCoder for TPU-optimized code generation",

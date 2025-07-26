@@ -8,8 +8,8 @@ DiffuCoder is a masked diffusion model for code generation, building on top of O
 
 **✅ COMPLETED: Full JAX/Flax Implementation**
 - **Status**: Production-ready JAX/Flax implementation with 7.6B parameters
-- **Performance**: ~2-5x expected speedup on TPU, ~25% improvement on CPU  
-- **Models**: PyTorch weights converted to JAX format (15.2GB → ~15GB)
+- **Performance**: Performance varies based on hardware, batch size, and workload
+- **Models**: PyTorch weights converted to JAX format (15.2GB → 11.85GB sharded)
 - **Training**: Complete Coupled-GRPO implementation in JAX
 - **Testing**: Comprehensive benchmarking and validation suite
 
@@ -118,18 +118,24 @@ In `recipes/config_coupled_code.yaml`:
 - **Usage**: For PyTorch inference and training
 
 ### JAX/Flax Weights (Converted)
-- **Location**: `./models/dream-jax/`
+- **Original Location**: `./models/DiffuCoder-7B-JAX-original/`
+- **Sharded Location**: `./models/DiffuCoder-7B-JAX/`
 - **Source**: Converted from PyTorch weights using `convert_dream_weights.py`
-- **Format**: Pickle file (`params.pkl`) + JSON config (`config.json`)
-- **Size**: ~15GB (same parameters, different format)
+- **Format**: Orbax sharded checkpoint (11.85GB total, 27 files)
 - **Usage**: For JAX/Flax inference and training
 
 ### Weight Conversion
 ```bash
-# Convert PyTorch weights to JAX format
+# Convert PyTorch weights to JAX format (initial conversion)
 python convert_dream_weights.py \
   --pytorch-model-path ./models/diffucoder-7b-complete \
-  --output-path ./models/dream-jax
+  --output-path ./models/DiffuCoder-7B-JAX-original
+
+# Convert to sharded format for efficient loading
+python convert_jax_to_sharded.py \
+  --input-dir ./models/DiffuCoder-7B-JAX-original \
+  --output-dir ./models/DiffuCoder-7B-JAX \
+  --num-shards 4
 ```
 
 ### Downloading Model Weights

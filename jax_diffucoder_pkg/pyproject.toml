@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jax-diffucoder"
-version = "0.1.0"
+version = "0.1.2"
 description = "High-performance JAX/Flax implementation of DiffuCoder for code generation"
 readme = "README.md"
 authors = [
@@ -102,7 +102,7 @@ exclude = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["jax_lm"]
 
 [tool.hatch.build.targets.wheel.shared-data]
 "jax_lm/py.typed" = "jax_lm/py.typed"

@@ -27,35 +27,48 @@ This file provides guidance for working with the JAX/Flax implementation of Diff
    - CPU inference forced to avoid JAX Metal issues on macOS
    - Rich logging with disable option (`NO_RICH_LOGGING=1`)
 
+5. **Package Structure Fixed** ✅ NEW
+   - Resolved nested `jax_lm/jax_lm/` directory issue
+   - Package now installs correctly: `pip install -e jax_lm/`
+   - All imports work properly: `import jax_lm`
+
+6. **Model Conversion Verified** ✅ NEW
+   - Created `test_first_layer_parity.py` - smoke test for embedding weights
+   - Perfect numerical match: 0.0 difference between PyTorch and JAX embeddings
+   - Confirms weight conversion was successful
+   - Model structure: `params['params']['DreamModel_0']['Embed_0']['embedding']`
+
+7. **TestPyPI Package Published** ✅ NEW
+   - Published to TestPyPI: https://test.pypi.org/project/jax-diffucoder/
+   - Version 0.1.2 with correct imports and version numbers
+   - Install: `pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ jax-diffucoder==0.1.2`
+   - Tested successfully in Google Colab with TPU runtime
+
 ### 🚧 Known Issues
 
-1. **Circular Imports**
-   - Issue between `jax_lm.__init__.py` and model imports
-   - Implemented lazy loading with `__getattr__` but needs proper testing
-   - This blocks PyPI publication
-
-2. **HuggingFace Upload**
+1. **HuggingFace Upload**
    - Model ready at: `models/DiffuCoder-7B-JAX/`
    - Target repo: `atsentia/DiffuCoder-7B-JAX`
    - Current blocker: 403 Forbidden (needs manual upload with proper permissions)
 
 ### 📋 Pending Tasks
 
-1. **Manual HuggingFace Upload**
-   - Upload the sharded model files via web interface
-   - Total size: 11.85 GB (27 files including tokenizer)
+1. **HuggingFace Model Upload** 🔴 NEXT STEP
+   - Repository exists: https://huggingface.co/atsentia/DiffuCoder-7B-JAX
+   - Upload all files from: `/Users/amund/ml-diffucoder/models/DiffuCoder-7B-JAX/`
+   - Total size: ~11GB (orbax_checkpoint directory + config files)
+   - Key files:
+     - `orbax_checkpoint/` (entire directory - 11GB)
+     - `config.json`, `tokenizer_config.json`, `vocab.json`, `merges.txt`
+     - `special_tokens_map.json`, `tokenization_dream.py`
+     - `README.md`, `checkpoint_metadata.json`
 
-2. **Fix Package Imports**
-   - Resolve circular dependencies properly
-   - Test package installation
+2. **Production PyPI Release**
+   - After HF upload and final testing
+   - Package ready at: `jax_diffucoder_pkg/dist/jax_diffucoder-0.1.2-*`
+   - Command: `python -m twine upload jax_diffucoder_pkg/dist/*`
 
-3. **PyTorch/JAX Numerical Comparison**
-   - Create proper parity test comparing outputs
-
-4. **PyPI Publication**
-   - After imports are fixed and tested
-
-5. **Performance Benchmarking**
+3. **Performance Benchmarking**
    - Test on Google Colab with TPU v2/v3 and GPU (A100)
    - Fill benchmark tables with real numbers
    - Update documentation with actual performance data
@@ -84,7 +97,8 @@ export NO_RICH_LOGGING=1
 - `test_sharded_format.py` - Comprehensive format verification
 - `verify_sharded_files.py` - Quick structure check
 - `test_local_install.py` - Package installation test
-- `test_pytorch_jax_parity.py` - Model comparison (needs work)
+- `test_first_layer_parity.py` - ✅ Embedding weight comparison (PASSES)
+- `test_numerical_parity.py` - Full model output comparison
 - `test_local_model_cpu.py` - CPU inference test
 - `upload_to_huggingface.py` - HF upload with progress
 

@@ -1,0 +1,130 @@
+name: Test JAX-DiffuCoder
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'jax_lm/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'jax_lm/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11"]
+        exclude:
+          # Skip some combinations to save CI time
+          - os: macos-latest
+            python-version: "3.9"
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+        cache-dependency-glob: "jax_lm/pyproject.toml"
+    
+    - name: Set up Python
+      run: uv python install ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        cd jax_lm
+        uv pip install -e ".[dev,tokenizer]"
+    
+    - name: Lint with flake8
+      run: |
+        cd jax_lm
+        flake8 jax_lm/ --max-line-length=88 --extend-ignore=E203,W503
+    
+    - name: Type check with mypy
+      run: |
+        cd jax_lm
+        mypy jax_lm/ --ignore-missing-imports
+    
+    - name: Test with pytest
+      run: |
+        cd jax_lm
+        python -m pytest tests/ -v --tb=short
+    
+    - name: Test model loading
+      run: |
+        cd jax_lm
+        python -m pytest tests/test_model_loading.py -v
+    
+    - name: Upload coverage
+      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./jax_lm/coverage.xml
+        fail_ci_if_error: false
+
+  test-gpu:
+    runs-on: ubuntu-latest
+    container:
+      image: nvidia/cuda:12.2.0-devel-ubuntu22.04
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install system dependencies
+      run: |
+        apt-get update
+        apt-get install -y python3-pip python3-dev curl
+    
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    
+    - name: Install JAX with GPU support
+      run: |
+        cd jax_lm
+        uv pip install -e ".[gpu,dev]" \
+          --extra-index-url https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    
+    - name: Run GPU tests
+      run: |
+        cd jax_lm
+        python -c "import jax; print(f'JAX devices: {jax.devices()}')"
+        python -m pytest tests/ -v -k "not tpu"
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+    
+    - name: Build package
+      run: |
+        cd jax_lm
+        uv pip install build
+        python -m build
+    
+    - name: Check package
+      run: |
+        cd jax_lm
+        uv pip install twine
+        python -m twine check dist/*
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: jax_lm/dist/

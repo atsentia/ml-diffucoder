@@ -1,0 +1,25 @@
+# UV configuration for jax-diffucoder
+[tool.uv]
+# Prefer binary wheels for faster installation
+prefer-binary = true
+
+# Use latest resolver
+resolution = "highest"
+
+# Cache settings
+cache-dir = ".uv_cache"
+
+# Development settings
+[tool.uv.dev]
+# Extra index URLs for JAX
+extra-index-url = [
+    "https://storage.googleapis.com/jax-releases/jax_cuda_releases.html",
+    "https://storage.googleapis.com/jax-releases/libtpu_releases.html"
+]
+
+[tool.uv.pip]
+# Compile Python files for faster imports
+compile = true
+
+# Use system packages when available
+system = false

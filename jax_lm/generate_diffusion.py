@@ -7,8 +7,7 @@ from jax import random
 import numpy as np
 from functools import partial
 
-from jax_lm.models.dream import DreamForCausalLM as DiffuCoder
-from jax_lm.models.dream import DreamConfig as DiffuCoderConfig
+from jax_lm.models.diffucoder import DiffuCoder, DiffuCoderConfig
 
 
 def compute_entropy_mask(

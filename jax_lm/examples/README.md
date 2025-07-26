@@ -1,49 +1,32 @@
 # JAX DiffuCoder Examples
 
-Example scripts demonstrating JAX DiffuCoder features for inference and training.
+This directory contains example scripts demonstrating various features of JAX DiffuCoder.
 
 ## Prerequisites
 
-Before running these examples:
+Before running these examples, ensure you have:
 
-1. Run smoke tests to verify installation:
+1. Installed JAX DiffuCoder:
    ```bash
-   python jax_lm/tests/smoke_tests.py
+   pip install -e jax_lm
    ```
 
-2. Download and convert model weights:
+2. Downloaded and converted model weights:
    ```bash
    # Download from HuggingFace
-   huggingface-cli download apple/DiffuCoder-7B-Instruct \
-       --include "*.safetensors" "*.json" \
-       --local-dir models/diffucoder-7b-complete
+   python jax_lm/scripts/download_weights.py \
+       --model-id apple/DiffuCoder-7B-Base \
+       --output-dir ./models/pytorch
 
    # Convert to JAX format
-   python convert_dream_weights.py \
-       --pytorch-model-path ./models/diffucoder-7b-complete \
-       --output-path ./models/dream-jax
+   python jax_lm/scripts/convert_pytorch_to_jax.py \
+       --pytorch-path ./models/pytorch \
+       --output-path ./models/jax
    ```
 
-## Available Examples
+## Examples
 
-### 1. TPU Inference (`tpu_inference_simple.py`)
-
-Quick example for running on Google Colab TPU:
-
-```bash
-# On Google Colab with TPU runtime
-python tpu_inference_simple.py
-
-# Show Colab setup instructions
-python tpu_inference_simple.py --colab-setup
-```
-
-Features:
-- Automatic TPU detection
-- Optimized for Colab environment
-- Built-in benchmarking
-
-### 2. Basic Generation (`basic_generation.py`)
+### 1. Basic Generation (`basic_generation.py`)
 
 Simple code generation for various programming tasks:
 
@@ -151,26 +134,21 @@ Features:
 ### Loading Models
 
 ```python
-from jax_lm.inference import DiffuCoderInference
-import jax.numpy as jnp
+from jax_lm import load_model, load_tokenizer
 
-# Simple API
-model = DiffuCoderInference(
-    model_path="./models/dream-jax",
-    dtype=jnp.bfloat16  # Use bfloat16 for TPU
-)
+model, params = load_model("./models/jax", dtype=jnp.bfloat16)
+tokenizer = load_tokenizer("./models/jax/tokenizer")
 ```
 
 ### Basic Generation
 
 ```python
-# Generate with simple API
-output = model.generate(
-    "def fibonacci(n):",
+output = diffusion_generate(
+    model, params, input_ids, rng,
     max_new_tokens=256,
     temperature=0.3,
+    top_p=0.95,
 )
-print(output)
 ```
 
 ### Handling Batches

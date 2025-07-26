@@ -13,15 +13,13 @@ from jax_lm import (
     load_model,
     diffusion_generate,
 )
-from jax_lm.utils.tokenizer import (
+from jax_lm.utils import (
     load_tokenizer,
-    prepare_input_ids,
-    decode_sequences,
-)
-from jax_lm.utils.tpu_utils import (
     setup_tpu,
     get_tpu_mesh,
     shard_params,
+    prepare_input_ids,
+    decode_sequences,
 )
 
 

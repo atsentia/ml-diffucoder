@@ -2,13 +2,19 @@
 
 A high-performance JAX/Flax implementation of DiffuCoder, optimized for TPU/GPU/CPU acceleration. This implementation provides significant performance improvements over PyTorch, especially on TPUs.
 
+> **📚 Documentation**
+> - [Full Setup & Usage Guide](README_UPDATED.md) - Complete installation and usage examples
+> - [Tokenizer Guide](TOKENIZER.md) - Tokenizer implementation and usage
+> - [GPU Setup Guide](GPU_SETUP.md) - Running on NVIDIA GPUs
+> - [Performance Benchmarks](BENCHMARKS.md) - Detailed performance analysis
+
 ## 🚀 Highlights
 
 - **Multi-Hardware Support**: Automatic detection and optimization for TPU, GPU, and CPU
-- **Performance**: 2-5x speedup on TPU, ~25% improvement on CPU compared to PyTorch
-- **Complete Implementation**: Full DiffuCoder (Dream) architecture with diffusion-based generation
-- **Production Ready**: Comprehensive testing, benchmarking, and inference pipeline
-- **Easy Integration**: Simple API with HuggingFace tokenizer support
+- **Performance**: ~25% faster on CPU, 2-5x speedup on TPU compared to PyTorch
+- **Complete Implementation**: Full DiffuCoder architecture with RoPE, multi-head attention, and RMSNorm
+- **Easy Conversion**: Tools to convert existing PyTorch checkpoints to JAX format
+- **Production Ready**: Comprehensive testing and benchmarking suite
 
 ## 📋 Table of Contents
 
@@ -52,19 +58,15 @@ pip install -e "jax_lm[tpu]"
 
 ## 🚀 Quick Start
 
-### 1. Run Smoke Tests
-
-```bash
-# Quick verification (no weights needed, <5 seconds)
-python jax_lm/tests/smoke_tests.py
-```
-
-### 2. Download and Convert Model Weights
+### 1. Download and Convert Model Weights
 
 ```bash
 # Download from HuggingFace Hub
 huggingface-cli download apple/DiffuCoder-7B-Instruct \
-  --include "*.safetensors" "*.json" \
+  model-00001-of-00004.safetensors \
+  model-00002-of-00004.safetensors \
+  model-00003-of-00004.safetensors \
+  model-00004-of-00004.safetensors \
   --local-dir models/diffucoder-7b-complete
 
 # Convert to JAX format
@@ -73,44 +75,45 @@ python convert_dream_weights.py \
     --output-path ./models/dream-jax
 ```
 
-### 3. Run Inference
+### 2. Run Inference
 
 ```python
-from jax_lm.inference import DiffuCoderInference
-import jax.numpy as jnp
+import jax
+from jax_lm import load_model, diffusion_generate
+from jax_lm.utils import load_tokenizer
 
-# Initialize model
-model = DiffuCoderInference(
-    model_path="./models/dream-jax",
-    dtype=jnp.bfloat16,  # Use bfloat16 for TPU
-)
+# Load model and tokenizer
+model, params = load_model("./models/jax")
+tokenizer = load_tokenizer("./models/jax/tokenizer")
 
 # Generate code
-output = model.generate(
-    "def fibonacci(n):",
+prompt = "def fibonacci(n):"
+inputs = tokenizer(prompt, return_tensors="jax")
+
+output = diffusion_generate(
+    model, 
+    params,
+    inputs["input_ids"],
+    jax.random.PRNGKey(0),
     max_new_tokens=256,
     temperature=0.3,
 )
-print(output)
+
+generated_text = tokenizer.decode(output["sequences"][0])
+print(generated_text)
 ```
 
-### 4. TPU Deployment
+### 3. TPU Inference
 
-For optimized TPU inference (Google Colab or Cloud TPU):
+For optimized TPU inference:
 
-```python
-# Run on Google Colab TPU
-!python examples/tpu_inference_simple.py
-
-# Or use the inference script
-!python -m jax_lm.inference \
-    --model-path ./models/dream-jax \
+```bash
+python jax_lm/inference_tpu.py \
+    --model-path ./models/jax \
     --prompt "def quicksort(arr):" \
     --max-new-tokens 256 \
     --temperature 0.3
 ```
-
-For detailed TPU setup, see [JAX_EXPERIMENT_PLAN.md](../JAX_EXPERIMENT_PLAN.md).
 
 ## 🏗️ Model Architecture
 
@@ -129,32 +132,24 @@ For detailed architecture information, see [ARCHITECTURE.md](docs/ARCHITECTURE.m
 
 ### Benchmark Results
 
-Based on 7.6B parameter DiffuCoder model:
+Performance benchmarks show JAX consistently outperforms PyTorch:
+- **CPU**: ~25% faster due to XLA optimization
+- **GPU**: Expected 1.5-2x speedup with proper tuning
+- **TPU**: Designed for 2-5x speedup with native XLA support
 
-| Hardware | PyTorch | JAX | Speedup |
-|----------|---------|-----|---------|
-| CPU (M2) | ~0.004 tokens/s | ~0.005 tokens/s | ~25% |
-| GPU (A100) | ~20 tokens/s | ~30-40 tokens/s | ~1.5-2x |
-| TPU v3-8 | N/A | 50-100 tokens/s | - |
-| TPU v4-8 | N/A | 100-200 tokens/s | - |
-
-*Note: CPU performance is not recommended for production use. TPU provides the best performance for JAX.*
+*Note: Actual performance depends on model size, batch size, and hardware configuration. Run the benchmark suite on your hardware for precise measurements.*
 
 ### Running Benchmarks
 
 ```bash
-# Run smoke tests first
-python jax_lm/tests/smoke_tests.py
+# Auto-detect best hardware
+python jax_lm/benchmarks/hardware_benchmark.py --backend auto
 
-# Benchmark with real weights
-python -m jax_lm.inference --benchmark \
-    --model-path ./models/dream-jax
-
-# Quick inference test
-python jax_lm/tests/quick_inference_test.py
+# Compare PyTorch vs JAX
+./jax_lm/benchmarks/download_and_benchmark.sh
 ```
 
-For detailed benchmarking, see [README_INFERENCE.md](README_INFERENCE.md).
+For detailed performance analysis, see [BENCHMARKS.md](docs/BENCHMARKS.md).
 
 ## 📖 Usage Examples
 
@@ -267,29 +262,18 @@ output = diffusion_generate(
 
 ## 🧪 Testing
 
-### Quick Tests
+Run the test suite:
 
 ```bash
-# Smoke tests (no weights needed, <5s)
-python jax_lm/tests/smoke_tests.py
+# Numerical parity tests
+python jax_lm/tests/test_numerical_parity.py
 
-# Inference test (requires weights)
-python jax_lm/tests/quick_inference_test.py
+# Performance tests
+pytest jax_lm/tests/test_performance.py
 
-# Layer-wise parity with PyTorch
-python jax_lm/tests/test_layer_parity.py \
-    --pytorch-model ./models/diffucoder-7b-complete \
-    --jax-model ./models/dream-jax
+# Integration tests
+pytest jax_lm/tests/test_integration.py
 ```
-
-### Full Test Suite
-
-```bash
-# Run all tests
-python jax_lm/tests/test_inference.py
-```
-
-For testing documentation, see [SMOKE_TESTS.md](../SMOKE_TESTS.md).
 
 ## 🤝 Contributing
 
